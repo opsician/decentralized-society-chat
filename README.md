@@ -1,1 +1,1 @@
-# smart-contract-boilerplate
+# Decentralized Society Token (DST)
