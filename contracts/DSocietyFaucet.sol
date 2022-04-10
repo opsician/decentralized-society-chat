@@ -5,7 +5,7 @@ pragma solidity >=0.7.0 <0.9.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract DSocialERC20Faucet is AccessControl{
+contract DSocietyERC20Faucet is AccessControl{
 
     event TransferSent(address _from, uint _amount);
 
