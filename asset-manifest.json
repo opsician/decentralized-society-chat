@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/decentralized-society-token/static/css/main.3c1d21f0.css",
-    "main.js": "/decentralized-society-token/static/js/main.3e933d90.js",
+    "main.js": "/decentralized-society-token/static/js/main.6aab8db1.js",
     "static/js/787.7ad059d0.chunk.js": "/decentralized-society-token/static/js/787.7ad059d0.chunk.js",
     "index.html": "/decentralized-society-token/index.html",
     "main.3c1d21f0.css.map": "/decentralized-society-token/static/css/main.3c1d21f0.css.map",
-    "main.3e933d90.js.map": "/decentralized-society-token/static/js/main.3e933d90.js.map",
+    "main.6aab8db1.js.map": "/decentralized-society-token/static/js/main.6aab8db1.js.map",
     "787.7ad059d0.chunk.js.map": "/decentralized-society-token/static/js/787.7ad059d0.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.3c1d21f0.css",
-    "static/js/main.3e933d90.js"
+    "static/js/main.6aab8db1.js"
   ]
 }
