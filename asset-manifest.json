@@ -1,13 +1,15 @@
 {
   "files": {
-    "main.css": "/decentralized-society-token/static/css/main.86fbd1e7.css",
-    "main.js": "/decentralized-society-token/static/js/main.cb0d473a.js",
+    "main.css": "/decentralized-society-token/static/css/main.3c1d21f0.css",
+    "main.js": "/decentralized-society-token/static/js/main.3e933d90.js",
+    "static/js/787.7ad059d0.chunk.js": "/decentralized-society-token/static/js/787.7ad059d0.chunk.js",
     "index.html": "/decentralized-society-token/index.html",
-    "main.86fbd1e7.css.map": "/decentralized-society-token/static/css/main.86fbd1e7.css.map",
-    "main.cb0d473a.js.map": "/decentralized-society-token/static/js/main.cb0d473a.js.map"
+    "main.3c1d21f0.css.map": "/decentralized-society-token/static/css/main.3c1d21f0.css.map",
+    "main.3e933d90.js.map": "/decentralized-society-token/static/js/main.3e933d90.js.map",
+    "787.7ad059d0.chunk.js.map": "/decentralized-society-token/static/js/787.7ad059d0.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.86fbd1e7.css",
-    "static/js/main.cb0d473a.js"
+    "static/css/main.3c1d21f0.css",
+    "static/js/main.3e933d90.js"
   ]
 }
