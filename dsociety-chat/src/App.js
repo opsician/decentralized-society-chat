@@ -6,7 +6,7 @@ import { abi } from "./abi";
 
 function App() {
 
-  const CONTRACT_ADDRESS = "0x04ae423787350B29A3BA715e260fdDF8CFB26d62";
+  const CONTRACT_ADDRESS = "0x427d28b709bcE530E8f4E143336783542913c084";
   const [user, setUser] = useState(null);
   const [myContract, setMyContract] = useState(null);
   const [myPublicKey, setMyPublicKey] = useState(null);
