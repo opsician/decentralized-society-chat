@@ -2,22 +2,23 @@
 
 pragma solidity >=0.7.0 <0.9.0;
 
-contract DSocietyChat {
-    
-    // stores the default name of an user and friends info
-    struct user {
-        string name;
-        friend[] friendList;
-    }
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
-    // each friend is identified by its address and name assigned by the second party
-    struct friend {
-        address pubkey;
+contract DSocietyChat is AccessControl {
+
+    event NewMessage(string name, address sender, uint256 timestamp, string msg);
+
+    uint public messageCost = 0.01 * 10 ** 18;
+    
+    // stores the default name of an user
+    struct user {
         string name;
     }
 
     // message construct stores the single chat message and its metadata
     struct message {
+        string name;
         address sender;
         uint256 timestamp;
         string msg;
@@ -25,8 +26,19 @@ contract DSocietyChat {
 
     // Collection of users registered on the application
     mapping(address => user) userList;
-    // Collection of messages communicated in a channel between two users
-    mapping(bytes32 => message[]) allMessages; // key : Hash(user1,user2)
+    // Collection of messages communicated between users
+    message[] allMessages;
+
+    // Token Contract
+    IERC20 public DSocial;
+
+    constructor() {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
+
+    function setDSocialContract(address _address) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        DSocial = IERC20(_address);
+    }
     
     // It checks whether a user(identified by its public key)
     // has created an account on this application or not
@@ -42,74 +54,34 @@ contract DSocietyChat {
     }
     
     // Returns the default name provided by an user
-    function getUsername(address pubkey) external view returns(string memory) {
+    function getUsername(address pubkey) public view returns(string memory) {
         require(checkUserExists(pubkey), "User is not registered!");
         return userList[pubkey].name;
     }
+
+    function getContractTokenBalance() public view onlyRole(DEFAULT_ADMIN_ROLE) returns(uint256){
+        return DSocial.balanceOf(address(this));
+    }
+
+    function getAllowance() public view returns(uint256){
+        return DSocial.allowance(msg.sender, address(this));
+    }
     
-    // Adds new user as your friend with an associated nickname
-    function addFriend(address friend_key, string calldata name) external {
+    // Sends a new message to the room
+    function sendMessage(string calldata _msg) external {
         require(checkUserExists(msg.sender), "Create an account first!");
-        require(checkUserExists(friend_key), "User is not registered!");
-        require(msg.sender!=friend_key, "Users cannot add themselves as friends!");
-        require(checkAlreadyFriends(msg.sender,friend_key)==false, "These users are already friends!");
-        
-        _addFriend(msg.sender, friend_key, name);
-        _addFriend(friend_key, msg.sender, userList[msg.sender].name);
-    }
-    
-    // Checks if two users are already friends or not
-    function checkAlreadyFriends(address pubkey1, address pubkey2) internal view returns(bool) {
-        
-        if(userList[pubkey1].friendList.length > userList[pubkey2].friendList.length)
-        {
-            address tmp = pubkey1;
-            pubkey1 = pubkey2;
-            pubkey2 = tmp;
-        }
-    
-        for(uint i=0; i<userList[pubkey1].friendList.length; ++i)
-        {
-            if(userList[pubkey1].friendList[i].pubkey == pubkey2)
-                return true;
-        }
-        return false;
-    }
-    
-    // A helper function to update the friendList
-    function _addFriend(address me, address friend_key, string memory name) internal {
-        friend memory newFriend = friend(friend_key,name);
-        userList[me].friendList.push(newFriend);
-    }
-    
-    // Returns list of friends of the sender
-    function getMyFriendList() external view returns(friend[] memory) {
-        return userList[msg.sender].friendList;
-    }
-    
-    // Returns a unique code for the channel created between the two users
-    // Hash(key1,key2) where key1 is lexicographically smaller than key2
-    function _getChatCode(address pubkey1, address pubkey2) internal pure returns(bytes32) {
-        if(pubkey1 < pubkey2)
-            return keccak256(abi.encodePacked(pubkey1, pubkey2));
-        else
-            return keccak256(abi.encodePacked(pubkey2, pubkey1));
-    }
-    
-    // Sends a new message to a given friend
-    function sendMessage(address friend_key, string calldata _msg) external {
-        require(checkUserExists(msg.sender), "Create an account first!");
-        require(checkUserExists(friend_key), "User is not registered!");
-        require(checkAlreadyFriends(msg.sender,friend_key), "You are not friends with the given user");
-        
-        bytes32 chatCode = _getChatCode(msg.sender, friend_key);
-        message memory newMsg = message(msg.sender, block.timestamp, _msg);
-        allMessages[chatCode].push(newMsg);
+        require(bytes(_msg).length>0, "Message cannot be empty!");
+        require(getAllowance() >= messageCost, "Please deposit more tokens before transferring");
+        DSocial.transferFrom(msg.sender, address(this), messageCost);
+        string memory name = getUsername(msg.sender);
+        message memory newMsg = message(name, msg.sender, block.timestamp, _msg);
+        allMessages.push(newMsg);
+        emit NewMessage(name, msg.sender, block.timestamp, _msg);
     }
     
     // Returns all the chat messages communicated in a channel
-    function readMessage(address friend_key) external view returns(message[] memory) {
-        bytes32 chatCode = _getChatCode(msg.sender, friend_key);
-        return allMessages[chatCode];
+    function readMessage() external view returns(message[] memory) {
+        return allMessages;
     }
+
 }
