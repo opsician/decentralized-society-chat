@@ -3,13 +3,11 @@ import { Box } from "@mui/system";
 import { MenuList, MenuItem, Container, Paper, Typography, Divider, Grid, List, ListItem, ListItemIcon, ListItemText, FormControl, TextField, IconButton } from "@mui/material";
 import './Chat.css';
 import SendIcon from '@mui/icons-material/Send'
-import ContentCut from '@mui/icons-material/ContentCut';
-import ContentCopy from '@mui/icons-material/ContentCopy';
-import ContentPaste from '@mui/icons-material/ContentPaste';
-import Cloud from '@mui/icons-material/Cloud';
 import TokenIcon from '@mui/icons-material/Token';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import { ethers } from "ethers";
 
 export default function Chat({
     user, 
@@ -19,7 +17,19 @@ export default function Chat({
     myPublicKey, 
     setMyPublicKey,
     contractABI,
-    CONTRACT_ADDRESS
+    CONTRACT_ADDRESS,
+    FAUCET_CONTRACT_ADDRESS,
+    TOKEN_CONTRACT_ADDRESS,
+    tokenABI,
+    faucetContract,
+    setFaucetContract,
+    tokenContract,
+    setTokenContract,
+    faucetABI,
+    signer,
+    setSigner,
+    myBalance,
+    setMyBalance
 }){
 
     const ENTER_KEY_CODE = 13;
@@ -51,6 +61,18 @@ export default function Chat({
         }
     }, [myPublicKey]);
 
+    useEffect(() => {
+        if (myPublicKey){
+            myContract.getAllowance()
+                .then((res) => {
+                    let div = ethers.BigNumber.from('1000000000000000000')
+                    let _balance = res.div(div).toString();
+                    console.log(_balance);
+                })
+                .catch(console.error);
+        }
+    }, [myPublicKey, chatMessages])
+
     const listChatMessages = chatMessages.map((chatMessage, index) =>
         <ListItem key={index}>
             <ListItemText primary={`${chatMessage.msg}`} secondary={`${chatMessage.name}: ${chatMessage.timeStamp}`}/>
@@ -61,13 +83,13 @@ export default function Chat({
         setMessage(event.target.value);
     }
 
-    // Sends messsage to an user 
+    // Sends messsage to a user 
     const sendMessage = async () => {
-        if(user && message) {
+        if(user && myPublicKey) {
             await myContract.sendMessage( message );
             setMessage("");
         }else{
-            alert("You must connect with Metamask to the AVAX test network!");
+            alert("You must sign in with Metamask!");
         }
     }
 
@@ -86,9 +108,27 @@ export default function Chat({
         }
     }
 
-    const handleEnterKey = (event) => {
-        if (event.keyCode === ENTER_KEY_CODE){
-            sendMessage();
+    const getTokens = async () => {
+        if( myPublicKey && signer && FAUCET_CONTRACT_ADDRESS){
+            const contract = new ethers.Contract( FAUCET_CONTRACT_ADDRESS, faucetABI, signer );
+            setFaucetContract( contract );
+            contract.request()
+                .then((res) => console.log(res))
+                .catch((err) => alert(err.data.message));
+        }else{
+            alert("You must sign in with Metamask.");
+        }
+    }
+
+    const makeDeposit = async () => {
+        if( myPublicKey && signer && TOKEN_CONTRACT_ADDRESS && CONTRACT_ADDRESS){
+            const contract = new ethers.Contract( TOKEN_CONTRACT_ADDRESS, tokenABI, signer );
+            setTokenContract( contract );
+            let amount = prompt('Enter number of tokens to deposit', '0.01');
+            amount = ethers.utils.parseUnits(amount, 18);
+            await contract.approve(CONTRACT_ADDRESS, amount);
+        }else{
+            alert("You must sign in with Metamask.");
         }
     }
 
@@ -137,17 +177,28 @@ export default function Chat({
                     <Grid id="faucet" sm={3} xs={12} item>
                         <Paper elevation={5}>
                             <Box p={3}>
-                                <Typography variant="h6" gutterBottom>
-                                    Control Panel
-                                </Typography>
+                                {user !== null
+                                    ? <Typography variant="subtitle2" gutterBottom>Name: {user}</Typography>
+                                    : <Typography variant="subtitle2" gutterBottom>Please Log In...</Typography>
+                                }
+                                {user !== null
+                                    ? <Typography variant="subtitle2" gutterBottom>Balance: {myBalance}</Typography>
+                                    : <Typography variant="subtitle2" gutterBottom></Typography>
+                                }
                                 <Divider /> 
                                 <Grid container spacing={1} alignItems="center">
                                     <MenuList>
-                                        <MenuItem onClick={()=>alert('hello')}>
+                                        <MenuItem onClick={getTokens}>
                                             <ListItemIcon>
                                                 <TokenIcon fontSize="small" />
                                             </ListItemIcon>
                                             <ListItemText>Request DST</ListItemText>
+                                        </MenuItem>
+                                        <MenuItem onClick={makeDeposit}>
+                                            <ListItemIcon>
+                                                <AccountBalanceWalletIcon fontSize="small" />
+                                            </ListItemIcon>
+                                            <ListItemText>Deposit</ListItemText>
                                         </MenuItem>
                                         <MenuItem>
                                             <ListItemIcon>

@@ -12,7 +12,14 @@ export default function Bar({
     myPublicKey, 
     setMyPublicKey,
     contractABI,
-    CONTRACT_ADDRESS
+    CONTRACT_ADDRESS,
+    TOKEN_CONTRACT_ADDRESS,
+    tokenABI,
+    setTokenContract,
+    signer,
+    setSigner,
+    myBalance,
+    setMyBalance
 }){
 
     const [showConnectButton, setShowConnectButton] = useState("block");
@@ -24,8 +31,11 @@ export default function Bar({
             let provider = new ethers.providers.Web3Provider( window.ethereum );
             let signer = provider.getSigner();
             try {
+                setSigner( signer );
                 const contract = new ethers.Contract( CONTRACT_ADDRESS, contractABI, signer );
                 setMyContract( contract );
+                const _tokenContract = new ethers.Contract( TOKEN_CONTRACT_ADDRESS, tokenABI, signer );
+                setTokenContract( _tokenContract );
                 const address = await signer.getAddress();         
                 let present = await contract.checkUserExists( address );
                 let username;
@@ -38,6 +48,8 @@ export default function Bar({
                 }
                 setUser( username );
                 setMyPublicKey( address );
+                let _balance = await contract.getAllowance();
+                setMyBalance(ethers.utils.formatEther(_balance).toString());
                 setShowConnectButton( "none" );
                 alert("Connected!");
             } catch(err) {
