@@ -29,49 +29,40 @@ export default function Chat({
     signer,
     setSigner,
     myBalance,
-    setMyBalance
+    setMyBalance,
+    roomId,
+    setRoomId,
+    chatMessages,
+    setChatMessages
 }){
-
-    const ENTER_KEY_CODE = 13;
     const scrollBottomRef = useRef(null);
-    
-    const [chatMessages, setChatMessages] = useState([]);
     const [message, setMessage] = useState("");
-
-    const [roomId, setRoomId] = useState("");
+    const [roomName, setRoomName] = useState("")
 
 
     useEffect(() => {
         if(myPublicKey){
             getMessage();
-            myContract.on("NewMessage", (name, sender, timestamp, msg) => {
-                const _timestamp = new Date( 1000*timestamp.toNumber() ).toUTCString();
-                const messageAdd = [...chatMessages, {
-                        name: name,
-                        publicKey: sender,
-                        timeStamp: _timestamp,
-                        msg: msg
-                    }
-                ]
-                setChatMessages(messageAdd);
-                if(scrollBottomRef.current){
-                    scrollBottomRef.current.scrollIntoView({ behavior: 'smooth' })
-                }
-            });
+            getRoomName();
+            if(scrollBottomRef.current){
+                scrollBottomRef.current.scrollIntoView();
+            }
         }
-    }, [myPublicKey]);
+    }, [myPublicKey, roomId]);
 
     useEffect(() => {
         if (myPublicKey){
-            myContract.getAllowance()
-                .then((res) => {
-                    let div = ethers.BigNumber.from('1000000000000000000')
-                    let _balance = res.div(div).toString();
-                    console.log(_balance);
-                })
-                .catch(console.error);
+            getAllowance();
+        }
+        if(scrollBottomRef.current){
+            scrollBottomRef.current.scrollIntoView();
         }
     }, [myPublicKey, chatMessages])
+
+    const getAllowance = async () => {
+        const allowance = await myContract.getAllowance();
+        setMyBalance(ethers.utils.formatEther( allowance ).toString());
+    } 
 
     const listChatMessages = chatMessages.map((chatMessage, index) =>
         <ListItem key={index}>
@@ -108,6 +99,11 @@ export default function Chat({
         }
     }
 
+    const getRoomName = async () => {
+        const _roomName = await myContract.rooms(roomId);
+        setRoomName(`${_roomName[0]}`);
+    }
+
     const getTokens = async () => {
         if( myPublicKey && signer && FAUCET_CONTRACT_ADDRESS){
             const contract = new ethers.Contract( FAUCET_CONTRACT_ADDRESS, faucetABI, signer );
@@ -132,6 +128,27 @@ export default function Chat({
         }
     }
 
+    const createRoom = async () => {
+        if( user && myPublicKey ){
+            const _roomName = prompt('Enter a room name', 'New Room'); 
+            const _roomId = await myContract.createRoom(_roomName);
+            // setRoomId(_roomId.toNumber());
+            console.log(_roomId);
+        }else{
+            alert("You must sign in with Metamask.");
+        }
+    }
+
+    const joinRoom = async () => {
+        if( user && myPublicKey ){
+            let _roomId = prompt('Enter a room ID', '0');
+            const joinedRoom = await myContract.joinRoom(parseInt(_roomId));
+            console.log(joinedRoom);
+        }else{
+            alert("You must sign in with Metamask.");
+        }
+    }
+
     return (
         <Fragment>
             <Container disableGutters>
@@ -139,8 +156,8 @@ export default function Chat({
                     <Grid id="chat" sm={9} xs={12} item>
                         <Paper elevation={5}>
                             <Box p={3}>
-                                <Typography variant="h6" gutterBottom>
-                                    General
+                                <Typography variant="subscript2" gutterBottom>
+                                    {roomName}
                                 </Typography>
                                 <Divider />
                                 <Grid container spacing={1} alignItems="center">
@@ -200,13 +217,13 @@ export default function Chat({
                                             </ListItemIcon>
                                             <ListItemText>Deposit</ListItemText>
                                         </MenuItem>
-                                        <MenuItem>
+                                        <MenuItem onClick={createRoom}>
                                             <ListItemIcon>
                                                 <MeetingRoomIcon fontSize="small" />
                                             </ListItemIcon>
                                             <ListItemText>Create Room</ListItemText>
                                         </MenuItem>
-                                        <MenuItem>
+                                        <MenuItem onClick={joinRoom}>
                                             <ListItemIcon>
                                                 <ArrowForwardIosIcon fontSize="small" />
                                             </ListItemIcon>

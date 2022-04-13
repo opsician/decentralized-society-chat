@@ -2,15 +2,16 @@ import { Fragment, useState } from 'react';
 import './App.css';
 import Bar from './components/bar/Bar';
 import Chat from './components/chat/Chat';
-import { abi } from "./abi";
-import { faucetAbi } from "./faucetAbi";
-import { tokenAbi } from "./tokenAbi";
+import { abi } from "./abi/abi";
+import { faucetAbi } from "./abi/faucetAbi";
+import { tokenAbi } from "./abi/tokenAbi";
 
 function App() {
 
-  const CONTRACT_ADDRESS = "0x8b068f4664A3f7cC8849EF36FD750c878b8a4Ee4";
+  const CONTRACT_ADDRESS = "0xA6cA410d94636189b06C496727D32C5F984B4b0a";
   const FAUCET_CONTRACT_ADDRESS = "0x16894cE57d08c4e75d20AdaF1AfD4F88b2f827aC";
   const TOKEN_CONTRACT_ADDRESS = "0x3e6bfDb3ec7aA5dd0F0C10d57C7b24E27C00a632";
+
   const [user, setUser] = useState(null);
   const [myContract, setMyContract] = useState(null);
   const [faucetContract, setFaucetContract] = useState(null);
@@ -18,6 +19,8 @@ function App() {
   const [myPublicKey, setMyPublicKey] = useState(null);
   const [signer, setSigner] = useState(null);
   const [myBalance, setMyBalance] = useState("");
+  const [roomId, setRoomId] = useState("");
+  const [chatMessages, setChatMessages] = useState([]);
 
   return (
     <Fragment>
@@ -37,6 +40,10 @@ function App() {
         setSigner={setSigner}
         myBalance={myBalance}
         setMyBalance={setMyBalance}
+        roomId={roomId}
+        setRoomId={setRoomId}
+        chatMessages={chatMessages}
+        setChatMessages={setChatMessages}
       />
       <Chat 
         user={user} 
@@ -59,6 +66,10 @@ function App() {
         setSigner={setSigner}
         myBalance={myBalance}
         setMyBalance={setMyBalance}
+        roomId={roomId}
+        setRoomId={setRoomId}
+        chatMessages={chatMessages}
+        setChatMessages={setChatMessages}
       />
     </Fragment>
   );
