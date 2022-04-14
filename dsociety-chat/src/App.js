@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useRef } from 'react';
 import './App.css';
 import Bar from './components/bar/Bar';
 import Chat from './components/chat/Chat';
@@ -8,7 +8,7 @@ import { tokenAbi } from "./abi/tokenAbi";
 
 function App() {
 
-  const CONTRACT_ADDRESS = "0xA6cA410d94636189b06C496727D32C5F984B4b0a";
+  const CONTRACT_ADDRESS = "0x5F6E13F14aA3A54B0D9a8010f71AbF72b13D8996";
   const FAUCET_CONTRACT_ADDRESS = "0x16894cE57d08c4e75d20AdaF1AfD4F88b2f827aC";
   const TOKEN_CONTRACT_ADDRESS = "0x3e6bfDb3ec7aA5dd0F0C10d57C7b24E27C00a632";
 
@@ -20,7 +20,11 @@ function App() {
   const [signer, setSigner] = useState(null);
   const [myBalance, setMyBalance] = useState("");
   const [roomId, setRoomId] = useState("");
+  const roomIdRef = useRef();
+  roomIdRef.current = roomId;
   const [chatMessages, setChatMessages] = useState([]);
+  const chatMessagesRef = useRef();
+  chatMessagesRef.current = chatMessages;
 
   return (
     <Fragment>
@@ -42,8 +46,10 @@ function App() {
         setMyBalance={setMyBalance}
         roomId={roomId}
         setRoomId={setRoomId}
+        roomIdRef={roomIdRef}
         chatMessages={chatMessages}
         setChatMessages={setChatMessages}
+        chatMessagesRef={chatMessagesRef}
       />
       <Chat 
         user={user} 
@@ -68,8 +74,10 @@ function App() {
         setMyBalance={setMyBalance}
         roomId={roomId}
         setRoomId={setRoomId}
+        roomIdRef={roomIdRef}
         chatMessages={chatMessages}
         setChatMessages={setChatMessages}
+        chatMessagesRef={chatMessagesRef}
       />
     </Fragment>
   );

@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract DSocietyChat is AccessControl {
 
+    event NewUser(string name, address sender);
     event NewMessage(string name, address sender, uint256 timestamp, string msg, uint roomId);
     event RoomJoin(address sender, uint256 roomId);
 
@@ -68,6 +69,7 @@ contract DSocietyChat is AccessControl {
 
     // Delete registered user
     function deleteUser() public {
+        require(checkUserExists(msg.sender), "User is not registered!");
         delete userRoom[msg.sender];
         delete userList[msg.sender];
     }
@@ -90,6 +92,7 @@ contract DSocietyChat is AccessControl {
         require(bytes(name).length>0, "Username cannot be empty!"); 
         userList[msg.sender].name = name;
         userRoom[msg.sender] = 0;
+        emit NewUser(name, msg.sender);
     }
 
     // Create a new room
@@ -106,13 +109,13 @@ contract DSocietyChat is AccessControl {
     }
 
     // Join a room
-    function joinRoom(uint _roomId) external returns(bool){
+    function joinRoom(uint _roomId) external returns(uint){
         require(checkUserExists(msg.sender), "User is not registered!");
         require(checkRoomExists(_roomId), "Room doesn't exist!");
         require(userRoom[msg.sender] != _roomId, "User already in room!");
         userRoom[msg.sender] = _roomId;
         emit RoomJoin(msg.sender, _roomId);
-        return true;
+        return _roomId;
     }
     
     // Returns the default name provided by an user
@@ -123,7 +126,6 @@ contract DSocietyChat is AccessControl {
 
     // Returns the room for a user
     function getUserRoom(address _pubkey) public view returns(uint) {
-        require(checkUserExists(_pubkey), "User is not registered!");
         return userRoom[_pubkey];
     }
 

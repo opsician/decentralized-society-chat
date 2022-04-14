@@ -22,8 +22,10 @@ export default function Bar({
     setMyBalance,
     roomId,
     setRoomId,
+    roomIdRef,
     chatMessages,
-    setChatMessages
+    setChatMessages,
+    chatMessagesRef
 }){
 
     const [showConnectButton, setShowConnectButton] = useState("block");
@@ -43,26 +45,24 @@ export default function Bar({
                 const address = await signer.getAddress();         
                 let present = await contract.checkUserExists( address );
                 let username;
-                if( present )
+                if( present ) {
                     username = await contract.getUsername( address );
-                else {
+                    setUser( username );
+                    setMyPublicKey( address );
+                    let _balance = await contract.getAllowance();
+                    setMyBalance(ethers.utils.formatEther(_balance).toString());
+                    let _roomId = await contract.getUserRoom( address );
+                    setRoomId(_roomId.toNumber());
+                    alert('Connected!');
+                }else{
                     username = prompt('Enter a username', 'Guest'); 
                     if( username === '' ) username = 'Guest';
                     await contract.createAccount( username );
                 }
-                setUser( username );
-                setMyPublicKey( address );
-                let _balance = await contract.getAllowance();
-                setMyBalance(ethers.utils.formatEther(_balance).toString());
-                let _roomId = await contract.getUserRoom( address );
-                setRoomId(_roomId.toNumber());
-                setShowConnectButton( "none" );
-
                 //set all listeners
                 initializeListeners(contract, address);
-
-                alert("Connected!");
             } catch(err) {
+                console.log(err);
                 alert("CONTRACT_ADDRESS not set properly!");
             }
         } else {
@@ -84,14 +84,24 @@ export default function Bar({
         myContract.on("RoomJoin", (_sender, _roomId) => {
             if ( _sender === address ) {
                 setRoomId(_roomId.toNumber());
+                alert(`You have joined room #${_roomId.toNumber()}!`);
+            }
+        });
+        myContract.on("NewUser", async (_name, _sender) => {
+            if ( _sender === address ) {
+                setUser( _name );
+                setMyPublicKey( _sender );
+                let _balance = await myContract.getAllowance();
+                setMyBalance(ethers.utils.formatEther(_balance).toString());
+                let _roomId = await myContract.getUserRoom( address );
+                setRoomId(_roomId.toNumber());
+                alert('Your account was created!');
             }
         });
         myContract.on("NewMessage", (name, sender, timestamp, msg, _roomId) => {
-            console.log(roomId);
-            console.log(chatMessages);
-            if ( roomId === _roomId.toNumber() ) {
+            if ( roomIdRef.current === _roomId.toNumber() ) {
                 const _timestamp = new Date( 1000*timestamp.toNumber() ).toUTCString();
-                const messageAdd = [...chatMessages, {
+                const messageAdd = [...chatMessagesRef.current, {
                         name: name,
                         publicKey: sender,
                         timeStamp: _timestamp,

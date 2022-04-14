@@ -32,27 +32,31 @@ export default function Chat({
     setMyBalance,
     roomId,
     setRoomId,
+    roomIdRef,
     chatMessages,
-    setChatMessages
+    setChatMessages,
+    chatMessagesRef
 }){
     const scrollBottomRef = useRef(null);
     const [message, setMessage] = useState("");
     const [roomName, setRoomName] = useState("")
 
+    useEffect(() => {
+        chatMessagesRef.current = chatMessages;
+    }, [chatMessages])
 
     useEffect(() => {
-        if(myPublicKey){
-            getMessage();
-            getRoomName();
-            if(scrollBottomRef.current){
-                scrollBottomRef.current.scrollIntoView();
-            }
+        getMessage();
+        getRoomName(roomId);
+        roomIdRef.current = roomId;
+        if(scrollBottomRef.current){
+            scrollBottomRef.current.scrollIntoView();
         }
-    }, [myPublicKey, roomId]);
+    }, [roomId]);
 
     useEffect(() => {
         if (myPublicKey){
-            getAllowance();
+            // getAllowance();
         }
         if(scrollBottomRef.current){
             scrollBottomRef.current.scrollIntoView();
@@ -86,6 +90,7 @@ export default function Chat({
 
     // Fetch chat messages
     const getMessage = async () => {
+        console.log("Getting messages");
         let messages = [];
         // Get messages
         const data = await myContract.readMessage();
@@ -99,9 +104,9 @@ export default function Chat({
         }
     }
 
-    const getRoomName = async () => {
+    const getRoomName = async (roomId) => {
         const _roomName = await myContract.rooms(roomId);
-        setRoomName(`${_roomName[0]}`);
+        setRoomName(`${_roomName[0]} #${roomId}`);
     }
 
     const getTokens = async () => {
@@ -132,8 +137,6 @@ export default function Chat({
         if( user && myPublicKey ){
             const _roomName = prompt('Enter a room name', 'New Room'); 
             const _roomId = await myContract.createRoom(_roomName);
-            // setRoomId(_roomId.toNumber());
-            console.log(_roomId);
         }else{
             alert("You must sign in with Metamask.");
         }
@@ -143,7 +146,6 @@ export default function Chat({
         if( user && myPublicKey ){
             let _roomId = prompt('Enter a room ID', '0');
             const joinedRoom = await myContract.joinRoom(parseInt(_roomId));
-            console.log(joinedRoom);
         }else{
             alert("You must sign in with Metamask.");
         }
