@@ -65,7 +65,7 @@ export default function Chat({
     }
 
     const isFloat = (n) => {
-        return parseFloat(n.match(/^-?\d*(\.\d+)?$/))>0;
+        return parseFloat(n.match(/^-?\d*(\.\d+)?$/))>=0;
     }
 
     function isPositiveInteger(str) {
@@ -117,7 +117,9 @@ export default function Chat({
         if( myPublicKey && signer && FAUCET_CONTRACT_ADDRESS){
             const contract = new ethers.Contract( FAUCET_CONTRACT_ADDRESS, faucetABI, signer );
             setFaucetContract( contract );
-            await contract.request();
+            contract.request()
+                .then(console.log)
+                .catch((res) => alert(res.data.message));
         }else{
             alert("You must sign in with Metamask.");
         }

@@ -8,8 +8,8 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 contract DSocietyChat is AccessControl {
 
     event NewUser(string name, address sender);
-    event NewMessage(string name, address sender, uint256 timestamp, string msg, uint roomId);
-    event RoomJoin(address sender, uint256 roomId);
+    event NewMessage(string name, address sender, uint timestamp, string msg, uint roomId);
+    event RoomJoin(address sender, uint roomId);
 
     uint public messageCost;
     uint public createRoomCost;
@@ -23,7 +23,7 @@ contract DSocietyChat is AccessControl {
     struct Message {
         string name;
         address sender;
-        uint256 timestamp;
+        uint timestamp;
         string msg;
     }
 
@@ -129,11 +129,11 @@ contract DSocietyChat is AccessControl {
         return userRoom[_pubkey];
     }
 
-    function getContractTokenBalance() public view onlyRole(DEFAULT_ADMIN_ROLE) returns(uint256){
+    function getContractTokenBalance() public view onlyRole(DEFAULT_ADMIN_ROLE) returns(uint){
         return DSocial.balanceOf(address(this));
     }
 
-    function getAllowance() public view returns(uint256){
+    function getAllowance() public view returns(uint){
         return DSocial.allowance(msg.sender, address(this));
     }
     
@@ -149,11 +149,21 @@ contract DSocietyChat is AccessControl {
         roomMessages[_userRoomId].push(newMsg);
         emit NewMessage(name, msg.sender, block.timestamp, _msg, _userRoomId);
     }
-    
+
     // Returns all the chat messages communicated in a channel
-    function readMessage() external view returns(Message[] memory) {
+    function readMessage(uint _maxChatDisplay) external view returns(Message[] memory) {
         uint _userRoomId = userRoom[msg.sender];
-        return roomMessages[_userRoomId];
+        uint _roomLength = roomMessages[_userRoomId].length;
+        if ( _maxChatDisplay >= _roomLength) {
+            return roomMessages[_userRoomId];
+        }
+        uint _startIndex = _roomLength - _maxChatDisplay;
+        Message[] memory _slicedMessages = new Message[](_maxChatDisplay);
+        for (uint idx = _startIndex; idx < _roomLength; idx++) {
+            uint _i = idx - _startIndex;
+            _slicedMessages[_i] = roomMessages[_userRoomId][idx];
+        }
+        return _slicedMessages;
     }
 
 }
