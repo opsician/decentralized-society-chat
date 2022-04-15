@@ -64,6 +64,24 @@ export default function Chat({
         setMessage(event.target.value);
     }
 
+    const isFloat = (n) => {
+        return parseFloat(n.match(/^-?\d*(\.\d+)?$/))>0;
+    }
+
+    function isPositiveInteger(str) {
+        if (typeof str !== 'string') {
+          return false;
+        }
+      
+        const num = Number(str);
+      
+        if (Number.isInteger(num) && num >= 0) {
+          return true;
+        }
+      
+        return false;
+    }
+
     // Sends messsage to a user 
     const sendMessage = async () => {
         if(user && myPublicKey) {
@@ -99,9 +117,7 @@ export default function Chat({
         if( myPublicKey && signer && FAUCET_CONTRACT_ADDRESS){
             const contract = new ethers.Contract( FAUCET_CONTRACT_ADDRESS, faucetABI, signer );
             setFaucetContract( contract );
-            contract.request()
-                .then((res) => console.log(res))
-                .catch((err) => alert(err.data.message));
+            await contract.request();
         }else{
             alert("You must sign in with Metamask.");
         }
@@ -109,11 +125,21 @@ export default function Chat({
 
     const makeDeposit = async () => {
         if( myPublicKey && signer && TOKEN_CONTRACT_ADDRESS && CONTRACT_ADDRESS){
-            const contract = new ethers.Contract( TOKEN_CONTRACT_ADDRESS, tokenABI, signer );
-            setTokenContract( contract );
-            let amount = prompt('Enter number of tokens to deposit', '0.01');
+            const _tokenContract = new ethers.Contract( TOKEN_CONTRACT_ADDRESS, tokenABI, signer );
+            const _myContract = new ethers.Contract( CONTRACT_ADDRESS, contractABI, signer );
+            let amount = prompt('Enter number of tokens to allow', '0.01');
+            if ( !isFloat( amount ) ){
+                alert("Input must be a float greater than 0 e.g. 0.01");
+                return false;
+            }
+            let allowance = await _myContract.getAllowance();
+            allowance = ethers.utils.formatEther( allowance );
+            if (parseFloat(allowance) === parseFloat(amount)){
+                alert("Your allowance has already been set to this value");
+                return false;
+            }
             amount = ethers.utils.parseUnits(amount, 18);
-            await contract.approve(CONTRACT_ADDRESS, amount);
+            await _tokenContract.approve(CONTRACT_ADDRESS, amount);
         }else{
             alert("You must sign in with Metamask.");
         }
@@ -131,6 +157,10 @@ export default function Chat({
     const joinRoom = async () => {
         if( user && myPublicKey ){
             let _roomId = prompt('Enter a room ID', '0');
+            if ( !isPositiveInteger(_roomId) ){
+                alert("Input must be an integer greater than or equal to 0");
+                return false;
+            }
             const joinedRoom = await myContract.joinRoom(parseInt(_roomId));
         }else{
             alert("You must sign in with Metamask.");
