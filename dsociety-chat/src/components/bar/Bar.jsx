@@ -60,7 +60,7 @@ export default function Bar({
                     await contract.createAccount( username );
                 }
                 //set all listeners
-                initializeListeners(contract, address);
+                initializeListeners(_tokenContract, contract, address);
             } catch(err) {
                 console.log(err);
                 alert("CONTRACT_ADDRESS not set properly!");
@@ -80,7 +80,17 @@ export default function Bar({
         }
     }
 
-    const initializeListeners = (myContract, address) => {
+    const initializeListeners = (tokenContract, myContract, address) => {
+        tokenContract.on("Approval", (owner, spender, value) => {
+            if ( owner === address ) {
+                setMyBalance(ethers.utils.formatEther(value).toString());
+            }
+        });
+        tokenContract.on("Transfer", (from, to, amount) => {
+            if ( to === address ) {
+                alert('You just received some DST!');
+            }
+        });
         myContract.on("RoomJoin", (_sender, _roomId) => {
             if ( _sender === address ) {
                 setRoomId(_roomId.toNumber());

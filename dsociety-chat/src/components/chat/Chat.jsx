@@ -39,11 +39,11 @@ export default function Chat({
 }){
     const scrollBottomRef = useRef(null);
     const [message, setMessage] = useState("");
-    const [roomName, setRoomName] = useState("")
+    const [roomName, setRoomName] = useState("");
 
     useEffect(() => {
         chatMessagesRef.current = chatMessages;
-    }, [chatMessages])
+    }, [chatMessages]);
 
     useEffect(() => {
         getMessage();
@@ -61,12 +61,7 @@ export default function Chat({
         if(scrollBottomRef.current){
             scrollBottomRef.current.scrollIntoView();
         }
-    }, [myPublicKey, chatMessages])
-
-    const getAllowance = async () => {
-        const allowance = await myContract.getAllowance();
-        setMyBalance(ethers.utils.formatEther( allowance ).toString());
-    } 
+    }, [myPublicKey, chatMessages]);
 
     const listChatMessages = chatMessages.map((chatMessage, index) =>
         <ListItem key={index}>
@@ -201,7 +196,7 @@ export default function Chat({
                                     : <Typography variant="subtitle2" gutterBottom>Please Log In...</Typography>
                                 }
                                 {user !== null
-                                    ? <Typography variant="subtitle2" gutterBottom>Balance: {myBalance}</Typography>
+                                    ? <Typography variant="subtitle2" gutterBottom>Allowance: {myBalance} DST</Typography>
                                     : <Typography variant="subtitle2" gutterBottom></Typography>
                                 }
                                 <Divider /> 
@@ -217,7 +212,7 @@ export default function Chat({
                                             <ListItemIcon>
                                                 <AccountBalanceWalletIcon fontSize="small" />
                                             </ListItemIcon>
-                                            <ListItemText>Deposit</ListItemText>
+                                            <ListItemText>Set Allowance</ListItemText>
                                         </MenuItem>
                                         <MenuItem onClick={createRoom}>
                                             <ListItemIcon>
