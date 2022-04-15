@@ -54,15 +54,6 @@ export default function Chat({
         }
     }, [roomId]);
 
-    useEffect(() => {
-        if (myPublicKey){
-            // getAllowance();
-        }
-        if(scrollBottomRef.current){
-            scrollBottomRef.current.scrollIntoView();
-        }
-    }, [myPublicKey, chatMessages]);
-
     const listChatMessages = chatMessages.map((chatMessage, index) =>
         <ListItem key={index}>
             <ListItemText primary={`${chatMessage.msg}`} secondary={`${chatMessage.name}: ${chatMessage.timeStamp}`}/>

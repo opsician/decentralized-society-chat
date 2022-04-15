@@ -55,7 +55,7 @@ export default function Bar({
                     setRoomId(_roomId.toNumber());
                     alert('Connected!');
                 }else{
-                    username = prompt('Enter a username', 'Guest'); 
+                    username = prompt('Please note that by proceeding, you have agreed that you are 18 years of age or older.\n\nEnter a username', 'Guest'); 
                     if( username === '' ) username = 'Guest';
                     await contract.createAccount( username );
                 }
