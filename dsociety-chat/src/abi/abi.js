@@ -516,7 +516,13 @@ export const abi = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_maxChatDisplay",
+				"type": "uint256"
+			}
+		],
 		"name": "readMessage",
 		"outputs": [
 			{

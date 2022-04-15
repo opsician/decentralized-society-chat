@@ -97,7 +97,7 @@ export default function Chat({
         console.log("Getting messages");
         let messages = [];
         // Get messages
-        const data = await myContract.readMessage();
+        const data = await myContract.readMessage(1000);
         data.forEach( ( item ) => {
             const timestamp = new Date( 1000*item[2].toNumber() ).toUTCString();
             messages.push({ "name": item[0], "publicKey": item[1], "timeStamp": timestamp, "msg": item[3] });
