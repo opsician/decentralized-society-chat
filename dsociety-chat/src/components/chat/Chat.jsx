@@ -43,6 +43,9 @@ export default function Chat({
 
     useEffect(() => {
         chatMessagesRef.current = chatMessages;
+        if(scrollBottomRef.current){
+            scrollBottomRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
     }, [chatMessages]);
 
     useEffect(() => {
@@ -50,7 +53,7 @@ export default function Chat({
         getRoomName(roomId);
         roomIdRef.current = roomId;
         if(scrollBottomRef.current){
-            scrollBottomRef.current.scrollIntoView();
+            scrollBottomRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [roomId]);
 
