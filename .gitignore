@@ -1,9 +1,3 @@
-#Solidity Artifacts
-contracts/artifacts/
-
-#Solidity Dependencies
-.deps
-
 # Logs
 logs
 *.log

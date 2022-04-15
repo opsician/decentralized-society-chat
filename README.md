@@ -1,27 +1,20 @@
-# Decentralized Society Token (DST)
+# Decentralized Society Chat
 
-Decentralized Society Token (DST) is a utility token created for the purpose of being used in DSociety platforms. 
+Decentralized Society Chat is a Dapp used for communication over the blockchain.
 
-## Platforms
-- DSocietyChat: a Dapp storing chat data on the blockchain
+## Contracts
+- DST ERC20 token: 0x3e6bfDb3ec7aA5dd0F0C10d57C7b24E27C00a632
+- Faucet: 0x16894cE57d08c4e75d20AdaF1AfD4F88b2f827aC
+- Chat: 0x3BfE796Ca78C8a02f18A1EC32a6e8D1faD471A80
 
-## Mission
-DST represents freedom of communication without the use of centralized cloud providers.
+## Functions
+- Request DST: collects token from DST (Decentralized Society Token) faucet
+- Set Allowance: sets the allowed DST tokens to be used for calling mutator methods
+- Create Room: creates separate chat room
+- Join Room: allows for switching rooms at no cost of DST
 
-## Tokenomics
-
-### Supply and Liquidity
-- name: Decentralized Society Token
-- symbol: DST
-- expiration: none
-- contract: 0x3e6bfDb3ec7aA5dd0F0C10d57C7b24E27C00a632
-- maximum supply: 100,000,000
-- blockchain: AVAX Fuji C-Chain
-- decimals: 18
-- admin account: 0x2416Cb54702fF807d85845cdE2fF659caDa584c3
-
-### Token Earn and Usage
-Decentralized Society Token is used only as a utility token on the DSociety platforms. Used tokens are removed from circulation by being sent to the contract addresses and unable to be withdrawn.
-Tokens are earned throught the following faucet which provides free tokens for use DSociety platforms.
-- contract: 0x16894cE57d08c4e75d20AdaF1AfD4F88b2f827aC
-- earning rate: 0.1 DST / day
+## Cost (DST)
+- Register: free
+- Chat: 0.01
+- Create Room: 0.02
+- Join Room: free
